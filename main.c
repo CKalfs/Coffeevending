@@ -179,13 +179,13 @@ void S_Process_Espresso_onEntry(void)
     FSM_AddEvent(money);                /// Gets trigger from setTime function
 }
 
-void S_Espresso_onExit(void)
+void S_Process_Espresso_onExit(void)
 {
     DSPshowDelete(1, "");
     DCSdebugSystemInfo("Curent state: %s, Current event: %s", stateEnumToText[state], eventEnumToText[event]);
 }
 
-void S_Process_Cappucino_onEntry(void)
+void S_Process_Cappuccino_onEntry(void)
 {
     insertedmoney();                    /// Displays the time selecion menu
     event_t money = insertedmoney();          /// Call setTime function
@@ -211,18 +211,18 @@ void S_Process_HotChocolate_onExit(void)
     DCSdebugSystemInfo("Curent state: %s, Current event: %s", stateEnumToText[state], eventEnumToText[event]);
 }
 
-void S_Process_INSERTED_MONEY_onEntry(void)
+void S_Inserted_Money_onEntry(void)
 {
     FSM_AddEvent(E_START);
 }
 
-void S_inserted_money_onExit(void)
+void S_Inserted_Money_onExit(void)
 {
     DSPshowDelete(1, "");
     DCSdebugSystemInfo("Curent state: %s, Current event: %s", stateEnumToText[state], eventEnumToText[event]);
 }
 
-void S_Startprogram_onEntry(void)
+void S_StartProgram_onEntry(void)
 {
     DSPshow(1, "Selected coffee: %s", selectedCoffee);
     DSPshow(2, "Making coffee :)");

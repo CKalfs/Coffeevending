@@ -240,7 +240,7 @@ void S_StartProgram_onEntry(void)
 }
 void S_StartProgram_onExit(void)
 {
-    DSPshowDelete(1, "");
+    DSPshowDelete(1, " ");
     DCSdebugSystemInfo("Curent state: %s, Current event: %s", stateEnumToText[state], eventEnumToText[event]);
 }
 

@@ -24,6 +24,7 @@ int priceEspresso = 110;            ///Price 1 espresso
 int priceHotChocolate = 120;        ///Price 1 hot chocolate
 int priceCappuccino = 135;          ///Price 1 cappuccino
 int insertedMoney;
+int selectedPrice;
 int exitCode;             ///signal graceful shutdown
 
 
@@ -84,17 +85,17 @@ int main(void)
     FSM_AddTransition(&(transition_t){ S_PROCESS_ESPRESSO,      E_100C,         S_INSERTED_MONEY});
     FSM_AddTransition(&(transition_t){ S_PROCESS_ESPRESSO,      E_50C,          S_INSERTED_MONEY});
     FSM_AddTransition(&(transition_t){ S_PROCESS_ESPRESSO,      E_25C,          S_INSERTED_MONEY});
-    FSM_AddTransition(&(transition_t){ S_PROCESS_ESPRESSO,      E_NOT_ENOUGH,   S_PROCESS_ESPRESSO});
+    FSM_AddTransition(&(transition_t){ S_INSERTED_MONEY,      E_NOT_ENOUGH,   S_PROCESS_ESPRESSO});
 
     FSM_AddTransition(&(transition_t){ S_PROCESS_CAPPUCINO,     E_100C,         S_INSERTED_MONEY});
     FSM_AddTransition(&(transition_t){ S_PROCESS_CAPPUCINO,     E_50C,          S_INSERTED_MONEY});
     FSM_AddTransition(&(transition_t){ S_PROCESS_CAPPUCINO,     E_25C,          S_INSERTED_MONEY});
-    FSM_AddTransition(&(transition_t){ S_PROCESS_CAPPUCINO,     E_NOT_ENOUGH,   S_PROCESS_CAPPUCINO});
+    FSM_AddTransition(&(transition_t){ S_INSERTED_MONEY,     E_NOT_ENOUGH,   S_PROCESS_CAPPUCINO});
 
     FSM_AddTransition(&(transition_t){ S_PROCESS_HOTCHOCOLATE,  E_100C,         S_INSERTED_MONEY});
     FSM_AddTransition(&(transition_t){ S_PROCESS_HOTCHOCOLATE,  E_50C,          S_INSERTED_MONEY});
     FSM_AddTransition(&(transition_t){ S_PROCESS_HOTCHOCOLATE,  E_25C,          S_INSERTED_MONEY});
-    FSM_AddTransition(&(transition_t){ S_PROCESS_HOTCHOCOLATE,  E_NOT_ENOUGH,   S_PROCESS_HOTCHOCOLATE});
+    FSM_AddTransition(&(transition_t){ S_INSERTED_MONEY,  E_NOT_ENOUGH,   S_PROCESS_HOTCHOCOLATE});
 
     FSM_AddTransition(&(transition_t){ S_INSERTED_MONEY,  E_ENOUGH,   S_START_PROGRAM});
     FSM_AddTransition(&(transition_t){ S_START_PROGRAM,  E_Done,   S_TAKE_OUT});
@@ -214,7 +215,13 @@ void S_Process_HotChocolate_onExit(void)
 
 void S_Inserted_Money_onEntry(void)
 {
-    FSM_AddEvent(E_ENOUGH);
+    if (insertedMoney >= selectedPrice)
+    {
+        FSM_AddEvent(E_ENOUGH);
+    }
+    else{
+        FSM_AddEvent(E_NOT_ENOUGH);
+    }
 }
 
 void S_Inserted_Money_onExit(void)
@@ -252,7 +259,7 @@ void S_ShutdownSystem(int status)
 {
     if (status !=0)
     {
-        DCSshowSystemError("System shutting down error code %d, state = %", status, stateEnumToText[state]);
+        DCSshowSystemError("System shutting down error code %d, state = %d", status, stateEnumToText[state]);
     }
     else
     {
@@ -270,10 +277,12 @@ kb = DCSsimulationSystemInputChar("Which coffee do you want?:", "123");
        case '1':
             coffeeselection = E_Espresso;
             strcpy(selectedCoffee, "Espresso");
+            selectedPrice = 110;
             break;
        case '2':
             coffeeselection = E_Cappuccino;
             strcpy(selectedCoffee, "Cappucino");
+            selectedPrice = 130;
             break;
        case '3':
             coffeeselection = E_HotChocolate;
@@ -282,6 +291,7 @@ kb = DCSsimulationSystemInputChar("Which coffee do you want?:", "123");
        default:
             DSPshow(1, "Wrong character");
             strcpy(selectedCoffee, "none");
+            selectedPrice = 120;
             }
            return coffeeselection;
 

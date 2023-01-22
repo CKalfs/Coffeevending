@@ -74,8 +74,8 @@ int main(void)
 
     //                                 From                     Event                To
     FSM_AddTransition(&(transition_t){ S_NO,                    E_START,        S_INITIALISESUBSYSTEMS    });
-    FSM_AddTransition(&(transition_t){ S_INITIALISESUBSYSTEMS,  E_CONTINUE,     S_CONFIGURE });
-    FSM_AddTransition(&(transition_t){ S_CONFIGURE,             E_CONFIG_READY, S_STOP});
+    FSM_AddTransition(&(transition_t){ S_INITIALISESUBSYSTEMS,  E_CONTINUE,     S_CHOOSE_COFFEE });
+    FSM_AddTransition(&(transition_t){ S_CHOOSE_COFFEE,             E_CONFIG_READY, S_STOP});
 
     FSM_AddTransition(&(transition_t){ S_CHOOSE_COFFEE,         E_Espresso,     S_PROCESS_ESPRESSO});
     FSM_AddTransition(&(transition_t){ S_CHOOSE_COFFEE,         E_Cappuccino,   S_PROCESS_CAPPUCINO});
@@ -141,7 +141,7 @@ void S_InitialiseSubsystems_onEntry(void)
     DSPshow(2, "Program started");                  /// Update user interface
     DSPshow(3, "insertMoney = %d", insertedMoney);  ///
     DSPshow(4, "change = %d", change);
-    DSPshow(5, "Coffee left = %d", coffeeLeft);
+    DSPshow(5, "Coffee left = %", coffeeLeft);
     DSPshow(6, "Press <ENTER> to continue");
 
     FSM_AddEvent(E_CONTINUE);           /// Initialisation done, go to next state

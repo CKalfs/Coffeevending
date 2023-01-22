@@ -20,9 +20,9 @@ event_t previousEvent;
 char selectedCoffee[15] = "none";  /// char array for selected coffee name
 int coffeeLeft = 10;                /// How much coffee is left in de machine
 int change = 100;                   ///How much coins is left in machine
-int priceEspresso = 120;            ///Price 1 espresso
-int priceHotChocolate = 130;        ///Price 1 hot chocolate
-int priceCappuccino = 125;          ///Price 1 cappuccino
+int priceEspresso = 110;            ///Price 1 espresso
+int priceHotChocolate = 120;        ///Price 1 hot chocolate
+int priceCappuccino = 135;          ///Price 1 cappuccino
 int insertedMoney;
 int exitCode;             ///signal graceful shutdown
 
@@ -75,7 +75,7 @@ int main(void)
     //                                 From                     Event                To
     FSM_AddTransition(&(transition_t){ S_NO,                    E_START,        S_INITIALISESUBSYSTEMS    });
     FSM_AddTransition(&(transition_t){ S_INITIALISESUBSYSTEMS,  E_CONTINUE,     S_CHOOSE_COFFEE });
-    FSM_AddTransition(&(transition_t){ S_CHOOSE_COFFEE,             E_CONFIG_READY, S_STOP});
+//    FSM_AddTransition(&(transition_t){ S_CHOOSE_COFFEE,         E_CONFIG_READY, S_STOP});
 
     FSM_AddTransition(&(transition_t){ S_CHOOSE_COFFEE,         E_Espresso,     S_PROCESS_ESPRESSO});
     FSM_AddTransition(&(transition_t){ S_CHOOSE_COFFEE,         E_Cappuccino,   S_PROCESS_CAPPUCINO});
@@ -149,7 +149,8 @@ void S_InitialiseSubsystems_onEntry(void)
 
 void S_InitialiseSubsystems_onExit(void)
 {
-    /// nothing to do onExit
+    DSPshowDelete(1, "");
+    DCSdebugSystemInfo("Curent state: %s, Current event: %s", stateEnumToText[state], eventEnumToText[event]);
 }
 
 void S_Choose_Coffee_onEntry(void)
@@ -157,9 +158,9 @@ void S_Choose_Coffee_onEntry(void)
     DSPshow(1, "Coffee");
 
     DSPshow(3, "Enter a program.");
-    DSPshow(4, "<1> Espresso");
-    DSPshow(5, "<2> Cappucino");
-    DSPshow(6, "<3> Hot Chocolate");
+    DSPshow(4, "<1> Espresso, price 110");
+    DSPshow(5, "<2> Cappucino, price 130");
+    DSPshow(6, "<3> Hot Chocolate, 120");
 
     DSPshow(8, "Press <ENTER> to continue");
     event_t coffeeselection = setCoffeeselection();          /// Get program information from the program subsystem
@@ -213,7 +214,7 @@ void S_Process_HotChocolate_onExit(void)
 
 void S_Inserted_Money_onEntry(void)
 {
-    FSM_AddEvent(E_START);
+    FSM_AddEvent(E_ENOUGH);
 }
 
 void S_Inserted_Money_onExit(void)

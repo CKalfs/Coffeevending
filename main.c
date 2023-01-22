@@ -47,7 +47,8 @@ void S_StartProgram_onEntry(void);
 void S_StartProgram_onExit(void);
 void S_RestartProgram_onEntry(void);
 void S_RestartProgram_onExit(void);
-
+void S_Take_out_onEntry(void);
+void S_Take_out_onExit(void);
 void S_ShutdownSystem(int status);
 
 void delay_ms(uint32_t d);
@@ -72,11 +73,12 @@ int main(void)
     FSM_AddState(S_INSERTED_MONEY,       &(state_funcs_t){ S_Inserted_Money_onEntry,       S_Inserted_Money_onExit });
     FSM_AddState(S_START_PROGRAM,        &(state_funcs_t){ S_StartProgram_onEntry,         S_StartProgram_onExit });
     FSM_AddState(S_RESTART_PROGRAM,      &(state_funcs_t){ S_RestartProgram_onEntry,       S_RestartProgram_onExit });
+    FSM_AddState(S_TAKE_OUT,      &(state_funcs_t){ S_Take_out_onEntry,       S_Take_out_onExit });
 
     //                                 From                     Event                To
     FSM_AddTransition(&(transition_t){ S_NO,                    E_START,        S_INITIALISESUBSYSTEMS    });
     FSM_AddTransition(&(transition_t){ S_INITIALISESUBSYSTEMS,  E_CONTINUE,     S_CHOOSE_COFFEE });
-//    FSM_AddTransition(&(transition_t){ S_CHOOSE_COFFEE,         E_CONFIG_READY, S_STOP});
+
 
     FSM_AddTransition(&(transition_t){ S_CHOOSE_COFFEE,         E_Espresso,     S_PROCESS_ESPRESSO});
     FSM_AddTransition(&(transition_t){ S_CHOOSE_COFFEE,         E_Cappuccino,   S_PROCESS_CAPPUCINO});
@@ -114,7 +116,7 @@ int main(void)
     while(event != E_CONTINUE_ERROR) /// While E_CONTINUE_ERROR is NOT triggert display debug
 
 
-   {
+    {
         if(!FSM_NoEvents())
         {
             // Get the event and handle it
@@ -142,7 +144,7 @@ void S_InitialiseSubsystems_onEntry(void)
     DSPshow(2, "Program started");                  /// Update user interface
     DSPshow(3, "insertMoney = %d", insertedMoney);  ///
     DSPshow(4, "change = %d", change);
-    DSPshow(5, "Coffee left = %", coffeeLeft);
+    DSPshow(5, "Coffee left = %d", coffeeLeft);
     DSPshow(6, "Press <ENTER> to continue");
 
     FSM_AddEvent(E_CONTINUE);           /// Initialisation done, go to next state
@@ -161,7 +163,7 @@ void S_Choose_Coffee_onEntry(void)
     DSPshow(3, "Enter a program.");
     DSPshow(4, "<1> Espresso, price 110");
     DSPshow(5, "<2> Cappucino, price 130");
-    DSPshow(6, "<3> Hot Chocolate, 120");
+    DSPshow(6, "<3> Hot Chocolate, price 120");
 
     DSPshow(8, "Press <ENTER> to continue");
     event_t coffeeselection = setCoffeeselection();          /// Get program information from the program subsystem
@@ -255,6 +257,21 @@ void S_RestartProgram_onExit(void)
     DSPshowDelete(1, "");
     DCSdebugSystemInfo("Curent state: %s, Current event: %s", stateEnumToText[state], eventEnumToText[event]);   /// Debug info
 }
+
+void S_Take_out_onEntry(void)
+{
+    DSPshow(1, "Your coffee is ready, go and grab it");
+    DSPshow(2, "");
+    DSPshow(3, "Restarting");
+    strcpy(selectedCoffee, "none");
+    change = 0;
+    FSM_AddEvent(E_Return);
+}
+void S_Take_out_onExit(void)
+{
+    DSPshowDelete(1, "");
+    DCSdebugSystemInfo("Curent state: %s, Current event: %s", stateEnumToText[state], eventEnumToText[event]);   /// Debug info
+}
 void S_ShutdownSystem(int status)
 {
     if (status !=0)
@@ -271,36 +288,36 @@ event_t setCoffeeselection(void)
 {
     char kb;
     event_t coffeeselection = E_Return;
-kb = DCSsimulationSystemInputChar("Which coffee do you want?:", "123");
+    kb = DCSsimulationSystemInputChar("Which coffee do you want?:", "123");
     switch(kb)
     {
-       case '1':
-            coffeeselection = E_Espresso;
-            strcpy(selectedCoffee, "Espresso");
-            selectedPrice = 110;
-            break;
-       case '2':
-            coffeeselection = E_Cappuccino;
-            strcpy(selectedCoffee, "Cappucino");
-            selectedPrice = 130;
-            break;
-       case '3':
-            coffeeselection = E_HotChocolate;
-            strcpy(selectedCoffee, "Hot Chocolate");
-            break;
-       default:
-            DSPshow(1, "Wrong character");
-            strcpy(selectedCoffee, "none");
-            selectedPrice = 120;
-            }
-           return coffeeselection;
-
+    case '1':
+        coffeeselection = E_Espresso;
+        strcpy(selectedCoffee, "Espresso");
+        selectedPrice = 110;
+        break;
+    case '2':
+        coffeeselection = E_Cappuccino;
+        strcpy(selectedCoffee, "Cappucino");
+        selectedPrice = 130;
+        break;
+    case '3':
+        coffeeselection = E_HotChocolate;
+        strcpy(selectedCoffee, "Hot Chocolate");
+        break;
+    default:
+        DSPshow(1, "Wrong character");
+        strcpy(selectedCoffee, "none");
+        selectedPrice = 120;
+    }
+    return coffeeselection;
+    DSPshowDelete(1, "");
 }
 
 event_t insertedmoney(void)            /// coinacceptor
 {
     char kb;
-    event_t money = E_EXIT_SYSTEM;
+    event_t money = E_Return;
     kb = DCSsimulationSystemInputChar("Please insert a coin enter 1 for 25c enter 2 for 50c or enter 3 for 100c", "123");
     switch (kb)
     {

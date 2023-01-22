@@ -141,7 +141,7 @@ void S_InitialiseSubsystems_onEntry(void)
     DSPshow(2, "Program started");                  /// Update user interface
     DSPshow(3, "insertMoney = %d", insertedMoney);  ///
     DSPshow(4, "change = %d", change);
-    DSPshow(5, "Coffee left = %", coffeeLeft);
+    DSPshow(5, "Coffee left = %d", coffeeLeft);
     DSPshow(6, "Press <ENTER> to continue");
 
     FSM_AddEvent(E_CONTINUE);           /// Initialisation done, go to next state
